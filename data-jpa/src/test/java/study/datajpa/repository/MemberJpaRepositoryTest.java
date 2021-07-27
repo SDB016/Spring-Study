@@ -7,7 +7,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.Entity.Member;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest
@@ -25,5 +29,35 @@ class MemberJpaRepositoryTest {
 
         assertThat(findMember.getId()).isEqualTo(member.getId());
         assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
+    }
+
+    @Test
+    void basicCRUD() {
+        Member memberA = new Member("dongbin");
+        Member memberB = new Member("ehdqls");
+
+        memberJpaRepository.save(memberA);
+        memberJpaRepository.save(memberB);
+
+        //단건 조회 검증
+        Member findA = memberJpaRepository.findById(memberA.getId()).get();
+        Member findB = memberJpaRepository.findById(memberB.getId()).get();
+        assertThat(findA).isEqualTo(memberA);
+        assertThat(findB).isEqualTo(memberB);
+
+        //리스트 조회 검증
+        List<Member> all = memberJpaRepository.findAll();
+        assertTrue(all.contains(memberA));
+        assertTrue(all.contains(memberB));
+        assertThat(all.size()).isEqualTo(2);
+
+        //카운트 검증
+        long count = memberJpaRepository.count();
+        assertThat(count).isEqualTo(2);
+
+        //삭제 검증
+        memberJpaRepository.delete(memberA);
+        long deletedCount = memberJpaRepository.count();
+        assertThat(deletedCount).isEqualTo(1);
     }
 }
