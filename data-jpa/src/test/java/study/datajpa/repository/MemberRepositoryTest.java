@@ -16,7 +16,6 @@ import study.datajpa.dto.MemberDto;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -268,5 +267,27 @@ class MemberRepositoryTest {
         assertEquals(2, resultCount);
         assertEquals(21, memberRepository.findByUsername("member3").get(0).getAge());
         assertEquals(22, memberRepository.findByUsername("member4").get(0).getAge());
+    }
+
+    @Test
+    void testEntityGraph() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        memberRepository.save(new Member("member1", 10, teamA));
+        memberRepository.save(new Member("member2", 10, teamB));
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = memberRepository.findEntityGraphByUsername("member1");
+
+        for (Member member : members) {
+            System.out.println("member = " + member.getUsername());
+            System.out.println("member.teamClass = " + member.getTeam().getClass());
+            System.out.println("member.team = " + member.getTeam().getName());
+        }
     }
 }
