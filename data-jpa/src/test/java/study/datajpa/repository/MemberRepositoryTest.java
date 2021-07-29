@@ -3,6 +3,7 @@ package study.datajpa.repository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.Entity.Member;
 import study.datajpa.Entity.Team;
@@ -11,6 +12,7 @@ import study.datajpa.dto.MemberDto;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -152,5 +154,50 @@ class MemberRepositoryTest {
         assertThat(memberList.size()).isEqualTo(2);
         assertThat(memberList.get(0)).isEqualTo(memberA);
         assertThat(memberList.get(1)).isEqualTo(memberB);
+    }
+
+    @Test
+    void testReturnType() {
+        Member memberA = new Member("dongbin",10);
+        Member memberB = new Member("dongbin",20);
+        Member memberC = new Member("ehdqls",20);
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+        memberRepository.save(memberC);
+
+        List<Member> memberList = memberRepository.findListByUsername("dongbin");
+        assertThat(memberList.size()).isEqualTo(2);
+
+        Member member = memberRepository.findMemberByUsername("ehdqls");
+        assertThat(member).isEqualTo(memberC);
+
+        Optional<Member> optionalMember = memberRepository.findOptionalByUsername("ehdqls");
+        if (optionalMember.isPresent()) {
+            Member optionalOne = optionalMember.get();
+            assertThat(optionalOne).isEqualTo(memberC);
+        }
+    }
+
+    @Test
+    void testReturnType_abnormal_input(){
+        Member memberA = new Member("dongbin",10);
+        Member memberB = new Member("dongbin",20);
+        Member memberC = new Member("ehdqls",20);
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+        memberRepository.save(memberC);
+
+        List<Member> memberList = memberRepository.findListByUsername("1234");
+        assertNotNull(memberList);
+        assertThat(memberList.size()).isEqualTo(0);
+
+        Member member = memberRepository.findMemberByUsername("1234");
+        assertNull(member);
+
+        assertThrows(IncorrectResultSizeDataAccessException.class, () -> {
+            Optional<Member> memberOptional = memberRepository.findOptionalByUsername("dongbin");
+        });
     }
 }
