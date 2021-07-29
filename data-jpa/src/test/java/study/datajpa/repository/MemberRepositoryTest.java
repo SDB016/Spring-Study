@@ -87,4 +87,18 @@ class MemberRepositoryTest {
         assertThat(memberList.size()).isEqualTo(2);
         assertThat(memberList.get(0).getAge()).isEqualTo(10);
     }
+
+    @Test
+    void testQuery() {
+        Member memberA = new Member("dongbin", 10);
+        Member memberB = new Member("dongbin", 30);
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        List<Member> memberList = memberRepository.findMember("dongbin", 10);
+
+        assertThat(memberList.size()).isEqualTo(1);
+        assertThat(memberList.get(0)).isEqualTo(memberA);
+    }
 }
