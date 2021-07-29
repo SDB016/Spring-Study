@@ -5,7 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.Entity.Member;
+import study.datajpa.Entity.Team;
+import study.datajpa.dto.MemberDto;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class MemberRepositoryTest {
 
-    @Autowired
-    MemberRepository memberRepository;
+    @Autowired MemberRepository memberRepository;
+    @Autowired TeamRepository teamRepository;
 
 
     @Test
@@ -100,5 +104,53 @@ class MemberRepositoryTest {
 
         assertThat(memberList.size()).isEqualTo(1);
         assertThat(memberList.get(0)).isEqualTo(memberA);
+    }
+
+    @Test
+    void testFindUsernameList() {
+        Member memberA = new Member("dongbin", 10);
+        Member memberB = new Member("ehdqls", 30);
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        List<String> usernameList = memberRepository.findUsernameList();
+
+        assertThat(usernameList.size()).isEqualTo(2);
+        assertThat(usernameList.get(0)).isEqualTo("dongbin");
+    }
+
+    @Test
+    void testFindMemberDto() {
+        Team team = new Team("teamA");
+
+        teamRepository.save(team);
+
+        Member memberA = new Member("dongbin", 10, team);
+        Member memberB = new Member("ehdqls", 30, team);
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        List<MemberDto> memberDtoList = memberRepository.findMemberDto();
+
+        for (int i = 0; i < 2; i++) {
+            assertThat(memberDtoList.get(i).getTeamname()).isEqualTo(team.getName());
+        }
+    }
+
+    @Test
+    void testFindMembersByNames() {
+        Member memberA = new Member("dongbin");
+        Member memberB = new Member("ehdqls");
+
+        memberRepository.save(memberA);
+        memberRepository.save(memberB);
+
+        List<Member> memberList = memberRepository.findMembersByNames(Arrays.asList("dongbin", "ehdqls"));
+
+        assertThat(memberList.size()).isEqualTo(2);
+        assertThat(memberList.get(0)).isEqualTo(memberA);
+        assertThat(memberList.get(1)).isEqualTo(memberB);
     }
 }
