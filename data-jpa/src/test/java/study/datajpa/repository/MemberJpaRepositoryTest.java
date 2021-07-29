@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.Entity.Member;
 
@@ -108,5 +109,15 @@ class MemberJpaRepositoryTest {
 
         assertThat(memberList.size()).isEqualTo(3);
         assertEquals(5, totalCount);
+    }
+
+    @Test
+    void bulkUpdate() {
+        for (int i = 0; i < 5; i++) {
+            memberJpaRepository.save(new Member("member" + i, 17 + i));
+        }
+        int resultCount = memberJpaRepository.bulkAgePlus(20);
+
+        assertEquals(2, resultCount);
     }
 }
