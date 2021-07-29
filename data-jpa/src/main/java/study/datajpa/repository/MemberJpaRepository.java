@@ -38,4 +38,10 @@ public class MemberJpaRepository {
     public Member find(Long id) {
         return em.find(Member.class, id);
     }
+
+    public List<Member> findByUsername(String name) {
+        return em.createNamedQuery("Member.findByUsername", Member.class)
+                .setParameter("username", name)
+                .getResultList();
+    }
 }
