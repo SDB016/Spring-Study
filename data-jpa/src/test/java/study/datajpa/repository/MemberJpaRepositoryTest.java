@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -88,5 +89,24 @@ class MemberJpaRepositoryTest {
 
         assertThat(memberList.size()).isEqualTo(2);
         assertThat(memberList.get(0).getAge()).isEqualTo(10);
+    }
+
+    @Test
+    void Paging() {
+        memberJpaRepository.save(new Member("member1", 20));
+        memberJpaRepository.save(new Member("member2", 20));
+        memberJpaRepository.save(new Member("member3", 20));
+        memberJpaRepository.save(new Member("member4", 20));
+        memberJpaRepository.save(new Member("member5", 20));
+
+        int age = 20;
+        int offset = 0;
+        int limit = 3;
+
+        List<Member> memberList = memberJpaRepository.findByPage(age, offset, limit);
+        long totalCount = memberJpaRepository.totalCount(age);
+
+        assertThat(memberList.size()).isEqualTo(3);
+        assertEquals(5, totalCount);
     }
 }

@@ -4,6 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.Entity.Member;
 import study.datajpa.Entity.Team;
@@ -199,5 +203,55 @@ class MemberRepositoryTest {
         assertThrows(IncorrectResultSizeDataAccessException.class, () -> {
             Optional<Member> memberOptional = memberRepository.findOptionalByUsername("dongbin");
         });
+    }
+
+    @Test
+    void Paging() {
+
+        for (int i = 0; i < 5; i++) {
+            memberRepository.save(new Member("member" + i, 20));
+        }
+
+        int age = 20;
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+
+        Page<Member> page = memberRepository.findPageByAge(age, pageRequest);
+
+        //Page<MemberDto> dtoPage = page.map(m -> new MemberDto(m.getId(), m.getUsername(), null)); // api 반환용
+
+        List<Member> content = page.getContent();
+        long totalElements = page.getTotalElements();
+
+        assertEquals(3, content.size());
+        assertEquals(5, totalElements);
+        assertEquals(2, page.getTotalPages());
+        assertTrue(page.isFirst());
+        assertTrue(page.hasNext());
+        assertFalse(page.hasPrevious());
+    }
+
+    @Test
+    void Slicing() {
+        memberRepository.save(new Member("member1", 20));
+        memberRepository.save(new Member("member2", 20));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 20));
+        memberRepository.save(new Member("member5", 20));
+
+        int age = 20;
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+
+        Slice<Member> page = memberRepository.findSliceByAge(age, pageRequest);
+
+        List<Member> content = page.getContent();
+
+        for (Member member : content) {
+            System.out.println("member.getUsername() = " + member.getUsername());
+        }
+
+        assertEquals(3, content.size());
+        assertTrue(page.isFirst());
+        assertTrue(page.hasNext());
+        assertFalse(page.hasPrevious());
     }
 }
