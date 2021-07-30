@@ -324,6 +324,39 @@ class MemberRepositoryTest {
 
         assertThat(members.size()).isEqualTo(1);
         assertThat(members.get(0).getUsername()).isEqualTo("member1");
+    }
 
+    /*@Test
+    void jpaBaseEntityTest() throws Exception {
+
+        Member member = new Member("member");
+        memberRepository.save(member); //@PrePersist
+
+        Thread.sleep(100);
+        member.setUsername("member1"); //@PreUpdate
+
+        em.flush();
+        em.clear();
+
+        Member byId = memberRepository.findById(member.getId()).get();
+        assertNotEquals(byId.getCreatedTime(), byId.getUpdatedTime());
+        assertTrue(byId.getCreatedTime().isBefore(byId.getUpdatedTime()));
+    }*/
+
+    @Test
+    void BaseEntityTest() throws Exception {
+
+        Member member = new Member("member");
+        memberRepository.save(member); //@PrePersist
+
+        Thread.sleep(100);
+        member.setUsername("member1"); //@PreUpdate
+
+        em.flush();
+        em.clear();
+
+        Member byId = memberRepository.findById(member.getId()).get();
+        assertNotEquals(byId.getCreatedDateTime(), byId.getLastModifiedDateTime());
+        assertTrue(byId.getCreatedDateTime().isBefore(byId.getLastModifiedDateTime()));
     }
 }
