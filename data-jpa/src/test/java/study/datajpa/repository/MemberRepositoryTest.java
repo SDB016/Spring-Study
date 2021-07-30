@@ -316,4 +316,14 @@ class MemberRepositoryTest {
 
         List<Member> result = memberRepository.findLockByUsername("member1");
     }
+
+    @Test
+    void MemberRepositoryCustomTest() {
+        memberRepository.save(new Member("member1"));
+        List<Member> members = memberRepository.findMemberCustom();
+
+        assertThat(members.size()).isEqualTo(1);
+        assertThat(members.get(0).getUsername()).isEqualTo("member1");
+
+    }
 }
